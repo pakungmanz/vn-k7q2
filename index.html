@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#3B6FBF">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Vee</title>
+<style>body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:#F4F6FA;color:#566174;font-family:system-ui,sans-serif;font-size:15px;text-align:center;padding:0 24px}</style>
+</head>
+<body>
+<div id="vee-msg">กำลังเปิด Vee…</div>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), k = '', a = '', m = document.getElementById('vee-msg');
+  try {
+    if (q.get('k')) localStorage.setItem('veeK', q.get('k'));
+    if (q.get('api')) localStorage.setItem('veeApi', q.get('api'));
+    k = localStorage.getItem('veeK') || ''; a = localStorage.getItem('veeApi') || '';
+  } catch (e) {}
+  k = k || q.get('k') || ''; a = a || q.get('api') || '';
+  if (!k || !a) { m.textContent = 'เปิดจากปุ่ม "เปิด Vee" ในแชท Telegram ครั้งแรกก่อนครับ'; return; }
+  fetch(a + '?page=1&k=' + encodeURIComponent(k) + '&t=' + Date.now())
+    .then(function (r) { return r.text(); })
+    .then(function (h) {
+      if (h.indexOf('<html') < 0) throw new Error(h.slice(0, 120));
+      document.open(); document.write(h); document.close();
+    })
+    .catch(function (e) { m.textContent = 'เปิด Vee ไม่สำเร็จ: ' + (e.message || e) + ' — ลองใหม่อีกครั้ง'; });
+})();
+</script>
+</body>
+</html>
