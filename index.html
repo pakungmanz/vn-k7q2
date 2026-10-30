@@ -21,10 +21,14 @@
   } catch (e) {}
   k = k || q.get('k') || ''; a = a || q.get('api') || '';
   if (!k || !a) { m.textContent = 'เปิดจากปุ่ม "เปิด Vee" ในแชท Telegram ครั้งแรกก่อนครับ'; return; }
-  // ต้องรอ parser จบก่อน ไม่งั้น document.open() ถูกข้าม แล้วหน้าแอปไปต่อท้ายข้อความโหลด
+  // บอก Telegram ว่าแอปพร้อมแล้ว (ไม่งั้น Telegram บนคอมค้างที่หน้าโหลดของมันเอง)
+  try { if (window.TelegramWebviewProxy) window.TelegramWebviewProxy.postEvent('web_app_ready', '{}'); } catch (e) {}
+  try { if (window.external && window.external.notify) window.external.notify(JSON.stringify({ eventType: 'web_app_ready', eventData: {} })); } catch (e) {}
+  try { if (window.parent !== window) window.parent.postMessage(JSON.stringify({ eventType: 'web_app_ready', eventData: {} }), '*'); } catch (e) {}
+  // ต้องรอหน้าโหลดเสร็จ (load) ก่อนเขียนหน้าแอปทับ — ถ้าทำก่อน หน้าจะไม่จบการโหลด / ถูกต่อท้ายข้อความโหลด
   var show = function (h) {
-    var go = function () { document.open(); document.write(h); document.close(); };
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
+    var go = function () { setTimeout(function () { document.open(); document.write(h); document.close(); }, 0); };
+    if (document.readyState === 'complete') go(); else window.addEventListener('load', go);
   };
   // หน้าแอปที่จำไว้ในเครื่อง → ขึ้นทันที (แอปจะโหลดเวอร์ชันใหม่เก็บไว้เองเมื่อมีอัปเดต)
   var c = ''; try { c = localStorage.getItem('veePage') || ''; } catch (e) {}
