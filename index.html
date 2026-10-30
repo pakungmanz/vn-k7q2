@@ -21,7 +21,11 @@
   } catch (e) {}
   k = k || q.get('k') || ''; a = a || q.get('api') || '';
   if (!k || !a) { m.textContent = 'เปิดจากปุ่ม "เปิด Vee" ในแชท Telegram ครั้งแรกก่อนครับ'; return; }
-  var show = function (h) { document.open(); document.write(h); document.close(); };
+  // ต้องรอ parser จบก่อน ไม่งั้น document.open() ถูกข้าม แล้วหน้าแอปไปต่อท้ายข้อความโหลด
+  var show = function (h) {
+    var go = function () { document.open(); document.write(h); document.close(); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
+  };
   // หน้าแอปที่จำไว้ในเครื่อง → ขึ้นทันที (แอปจะโหลดเวอร์ชันใหม่เก็บไว้เองเมื่อมีอัปเดต)
   var c = ''; try { c = localStorage.getItem('veePage') || ''; } catch (e) {}
   if (c.indexOf('<html') >= 0) return show(c);
