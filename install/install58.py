@@ -39,6 +39,16 @@ function celebData(tasks, adat, pj) {
   list.sort(function (a, b) { return b.k - a.k; });
   return { first: first, from: from, t: t, list: list.map(function (x) { return { id: x.id, t: x.t, d: x.d, p: x.p }; }) };
 }""")
+# วันที่ project จบ = วันที่บันทึก "เสร็จ 100%" ใน Process (ไม่เลื่อนตามบันทึกที่มาทีหลัง) · ไม่มีบรรทัดนี้ = Last progress เหมือนเดิม
+C=rep(C,"""      .map(function (r) { return { id: r.id, title: r.title, rm: rmName(r), at: r.last ? ymd(r.last) : '', week: !!r.last && r.last.getTime() >= wk }; });""",
+"""      .map(function (r) { var fd = st === ST_DONE ? finishDate(r) : r.last; return { id: r.id, title: r.title, rm: rmName(r), at: fd ? ymd(fd) : '', week: !!fd && ymd(fd) >= ymd(new Date(wk)) }; })
+      .sort(function (a, b) { return a.at < b.at ? 1 : a.at > b.at ? -1 : 0; });""")
+C=rep(C,"function weekDone() { return archiveData()","""/** v58: วันที่บันทึกความคืบหน้าเป็น 100% ล่าสุด (บรรทัด "dd/mm/yy เสร็จ 100%" ใน Process ปี พ.ศ.) */
+function finishDate(r) {
+  var m = /(\\d{2})\\/(\\d{2})\\/(\\d{2}) เสร็จ 100%/.exec(String(r.process || ''));
+  return m ? new Date(2500 + +m[3] - 543, +m[2] - 1, +m[1]) : r.last;
+}
+function weekDone() { return archiveData()""")
 # ---------------- หน้าแอป ----------------
 H=rep(H,"#party{","""/* v58: ฉลอง & เหรียญ */
 .celsec{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
