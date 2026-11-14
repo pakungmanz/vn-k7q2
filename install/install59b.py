@@ -476,6 +476,9 @@ document.addEventListener('input', wkInput);
 document.addEventListener('change', wkInput);
 """
 H=rep(H,"function viewMore() {",WK_UI+"function viewMore() {")
+# v59b: Telegram Desktop ไม่มี Telegram ใน UA → เคยบอกผิดให้ไปตั้งสิทธิ์ Chrome · เช็ค window.external.notify / Telegram.WebApp ด้วย
+H=rep(H,"tg = /Telegram/i.test(navigator.userAgent) || !!window.TelegramWebviewProxy;","tg = /Telegram/i.test(navigator.userAgent) || !!window.TelegramWebviewProxy || !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.platform && window.Telegram.WebApp.platform !== 'unknown') || (function () { try { return !!(window.external && 'notify' in window.external); } catch (x) { return false; } })();")
+H=rep(H,"'Telegram ไม่ให้แอปใช้ไมค์ — เปิด Vee ผ่าน Chrome จะใช้ไมค์ได้'","'Telegram ไม่ให้แอปใช้ไมค์ — กด ⋯ หรือหน้าตั้งค่า → คัดลอกลิงก์แอป แล้วเปิดใน Chrome จะใช้ไมค์ได้'")
 assert "Code.v58" not in H
 out=C.rstrip('\n')+'\n/* APP_HTML: generated from app.html */\nvar APP_HTML = '+json.dumps(H,ensure_ascii=False)+';\n'+'\n/* CELEB_MP4: generated from assets/celeb.mp4 */\nvar CELEB_MP4 = "'+MP4+'";\n'
 open('Code.v59b.gs','w',encoding='utf8',newline='\n').write(out)
